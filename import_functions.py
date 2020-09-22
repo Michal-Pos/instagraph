@@ -86,6 +86,10 @@ class Exporting_data:
             main_list = source_list + target_list
             print(main_list)
             Exporting_data.list_data(main_list[150:300])
+        else:
+            Exporting_data.single_data(username)
+            Exporting_data.user(username)
+
 
 
 class Updating:
@@ -134,5 +138,5 @@ class Updating:
             main_list = source_list + target_list
             print(main_list)
 
-Exporting_data.user('mikematuszyk')
+Exporting_data.user('spotted_jezioranski')
 
