@@ -18,8 +18,6 @@ password = 'zazuziza12'
 # login = 'martycox44'
 # password = 'zazuziza13'
 
-# login='mikeshehad'
-# password='fibbogauss'
 
 # Class that exports data from profiles
 class Exporting_data:
