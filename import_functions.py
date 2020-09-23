@@ -10,7 +10,7 @@ whl_path = r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\whl_folder\\'
 # login and passwords section
 
 login = 'pm49055047'
-password = 'zazuziza12'
+password = 'Zazuziza13'
 
 
 # login = 'hlane976'
@@ -34,8 +34,8 @@ class Exporting_data:
                 profile = instaloader.Profile.from_username(L.context, username)
                 if profile.is_verified:
                     print(username + (20 - len(username)) * '.' + 'VERIFIED')
-                elif profile.is_business_account:
-                    print(username + (20 - len(username)) * '.' + ' IS BUSINESS ', profile.business_category_name)
+                elif profile.is_business_account and profile.followers>1000:
+                    print(username + (30 - len(username)) * '.' + ' IS BUSINESS ', profile.business_category_name)
 
                 elif profile.is_private and login != 'mikeshehad':
                     print(username + (25 - len(username)) * '.' + 'PRIVATE')
@@ -49,14 +49,14 @@ class Exporting_data:
                     for follower in profile.get_followers():
                         follower_list.append(follower.username)
 
-                    print(followee_list)
-                    print(follower_list)
+                    #print(followee_list)
+                    #print(follower_list)
 
                     data_final = {'Source': [username] * len(followee_list) + follower_list,
                                   'Target': followee_list + [username] * len(follower_list)}
 
                     df_final = pd.DataFrame(data_final)
-                    print(df_final)
+                    # print(df_final)
                     df_final.to_csv(edges_path + username + '_edges.csv', index=None)
                     print(username + (35 - len(username)) * '.' + 'HAS BEEN CREATED')
             except Exception as e:
@@ -89,7 +89,6 @@ class Exporting_data:
             Exporting_data.user(username)
 
 
-
 class Updating:
 
     def single(username):
@@ -103,17 +102,16 @@ class Updating:
             source_list = [i for i in source_list if i != username]
             target_list = [i for i in target_list if i != username]
             if len(df) != (profile.followers + profile.followees):
-                if len(source_list)!=profile.followees:
+                if len(source_list) != profile.followees:
                     print('Profile ' + username + 'is being updated')
 
-                    #print(df)
-                    print(len(df))
-                    print(profile.followers + profile.followees)
+                    # print(df)
+                    # print(len(df))
+                    # print(profile.followers + profile.followees)
 
-
-                # os.remove(edges_path + username + '_edges.csv')
-                # df.to_csv(edges_path + username + '_edges.csv', index=None)
-                # print(username + 'has been updated')
+                os.remove(edges_path + username + '_edges.csv')
+                df.to_csv(edges_path + username + '_edges.csv', index=None)
+                print(username + 'has been updated')
             else:
                 print(username + (35 - len(username)) * '.' + 'IS UP TO DATE')
         else:
@@ -134,7 +132,11 @@ class Updating:
             target_list = [i for i in target_list if i != username]
 
             main_list = source_list + target_list
-            print(main_list)
+            # print(main_list)
 
-Exporting_data.user('spotted_jezioranski')
+class Creating_dataframe:
+    def single_df(username):
+        if os.path.exists(edges_path + username +'_edges.csv'):
+            df=pd.read_csv()
 
+Exporting_data.user('samorzadposting')
