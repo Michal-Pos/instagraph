@@ -3,7 +3,6 @@ import os
 import instaloader
 import instaloader.exceptions
 
-L = instaloader.Instaloader()
 edges_path = r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\edges\\'
 whl_path = r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\whl_folder\\'
 
@@ -21,6 +20,8 @@ password = 'Zazuziza13'
 
 # Class that exports data from profiles
 class Exporting_data:
+    L = instaloader.Instaloader()
+
     L.login(login, password)
 
     # This can be used only to exporting data from poblic profiles
@@ -34,7 +35,7 @@ class Exporting_data:
                 profile = instaloader.Profile.from_username(L.context, username)
                 if profile.is_verified:
                     print(username + (20 - len(username)) * '.' + 'VERIFIED')
-                elif profile.is_business_account and profile.followers>1000:
+                elif profile.is_business_account and profile.followers > 1000:
                     print(username + (30 - len(username)) * '.' + ' IS BUSINESS ', profile.business_category_name)
 
                 elif profile.is_private and login != 'mikeshehad':
@@ -49,8 +50,8 @@ class Exporting_data:
                     for follower in profile.get_followers():
                         follower_list.append(follower.username)
 
-                    #print(followee_list)
-                    #print(follower_list)
+                    # print(followee_list)
+                    # print(follower_list)
 
                     data_final = {'Source': [username] * len(followee_list) + follower_list,
                                   'Target': followee_list + [username] * len(follower_list)}
@@ -82,6 +83,7 @@ class Exporting_data:
             target_list = [i for i in target_list if i != username]
 
             main_list = source_list + target_list
+            print(len(main_list))
             print(main_list)
             Exporting_data.list_data(main_list[150:300])
         else:
@@ -134,9 +136,22 @@ class Updating:
             main_list = source_list + target_list
             # print(main_list)
 
-class Creating_dataframe:
-    def single_df(username):
-        if os.path.exists(edges_path + username +'_edges.csv'):
-            df=pd.read_csv()
 
-Exporting_data.user('samorzadposting')
+class Creating_dataframe:
+
+    def single(username):
+        if os.path.exists(edges_path + username + '_edges.csv'):
+            function_df = pd.read_csv(edges_path + username + '_edges.csv')
+            return function_df
+        else:
+            print('Dataframe '+username+ ' can not be created, file does not exists in database')
+
+
+    def list(list):
+        final_df = {"Source": [], "Target": []}
+        final_df = pd.DataFrame(final_df)
+        for item in list:
+            final_df=pd.concat([final_df, Creating_dataframe.single(item)], ignore_index=True)
+        #final_df.to_csv(r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\\'+'mixed_list.csv')
+
+
