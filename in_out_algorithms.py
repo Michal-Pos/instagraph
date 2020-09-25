@@ -39,6 +39,9 @@ def test_dataset_in_out(list):
 # calculating In and Out Degrees of nodes with respect to two arguments
 class Degrees:
     def counting_out(list, x, y):
+        if y=='max':
+            print('nice')
+            y=len(list)
         list.sort()
         print('OUT LIST')
 
@@ -49,6 +52,10 @@ class Degrees:
                 print(list[i], list.count(list[i]))
 
     def counting_in(list, x, y):
+        if y=='max':
+            print('nice')
+            y=len(list)
+
         list.sort()
         print('IN LIST')
         for i in range(0, len(list)):
