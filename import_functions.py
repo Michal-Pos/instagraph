@@ -16,13 +16,11 @@ password = 'Zazuziza13'
 # password = 'Zazuziza15'
 # login = 'martycox44'
 # password = 'zazuziza13'
+L = instaloader.Instaloader()
 
 
 # Class that exports data from profiles
 class Exporting_data:
-    L = instaloader.Instaloader()
-
-    L.login(login, password)
 
     # This can be used only to exporting data from poblic profiles
     def single_data(username):
@@ -32,6 +30,8 @@ class Exporting_data:
             print('File ' + username + (20 - len(username)) * '.' + 'ALREADY EXISTS')
         else:
             try:
+                L.login(login, password)
+
                 profile = instaloader.Profile.from_username(L.context, username)
                 if profile.is_verified:
                     print(username + (20 - len(username)) * '.' + 'VERIFIED')
@@ -61,6 +61,7 @@ class Exporting_data:
                     df_final.to_csv(edges_path + username + '_edges.csv', index=None)
                     print(username + (35 - len(username)) * '.' + 'HAS BEEN CREATED')
             except Exception as e:
+
                 if e == instaloader.exceptions.ProfileNotExistsException:
                     print(username, ' profile does not exist')
                 if e == instaloader.exceptions.ConnectionException:
@@ -69,6 +70,7 @@ class Exporting_data:
                     print('TWO FACTOR AUTHENTHICATION REQUIERED')
 
     def list_data(list):
+        list=[i for i in list if not os.path.exists(edges_path + i + '_edges.csv')]
         for item in list:
             Exporting_data.single_data(item)
 
@@ -94,7 +96,7 @@ class Exporting_data:
 class Updating:
 
     def single(username):
-        profile = instaloader.Profile.from_username(L.context, username)
+
         if os.path.exists(edges_path + username + '_edges.csv'):
 
             df = pd.read_csv(edges_path + username + '_edges.csv')
@@ -103,13 +105,36 @@ class Updating:
             target_list = df['Target'].to_list()
             source_list = [i for i in source_list if i != username]
             target_list = [i for i in target_list if i != username]
-            if len(df) != (profile.followers + profile.followees):
-                if len(source_list) != profile.followees:
-                    print('Profile ' + username + 'is being updated')
+            print(source_list)
+            print(target_list)
+            L.login(login, password)
 
-                    # print(df)
-                    # print(len(df))
-                    # print(profile.followers + profile.followees)
+            profile = instaloader.Profile.from_username(L.context, username)
+
+            followees_count = profile.followees
+            followers_count = profile.followers
+
+            # Seeking the difference between database file and internet data
+            if len(df) != (followees_count + followers_count):
+                if len(source_list) != followees_count:
+                    source_list.clear()
+                    for followee in profile.get_followees():
+                        source_list.append(followee.username)
+                    print('followees difreence')
+
+                if len(target_list) != followers_count:
+                    target_list.clear()
+                    for follower in profile.get_followers():
+                        target_list.append(follower.username)
+                    print('followers difreence')
+                print(target_list)
+
+
+
+                data_final = {'Source': [username] * len(target_list) + source_list,
+                              'Target': target_list + [username] * len(source_list)}
+
+                df=pd.DataFrame(data_final)
 
                 os.remove(edges_path + username + '_edges.csv')
                 df.to_csv(edges_path + username + '_edges.csv', index=None)
@@ -134,7 +159,6 @@ class Updating:
             target_list = [i for i in target_list if i != username]
 
             main_list = source_list + target_list
-            # print(main_list)
 
 
 class Creating_dataframe:
@@ -146,12 +170,12 @@ class Creating_dataframe:
         else:
             print('Dataframe '+username+ ' can not be created, file does not exists in database')
 
-
     def list(list):
         final_df = {"Source": [], "Target": []}
         final_df = pd.DataFrame(final_df)
         for item in list:
             final_df=pd.concat([final_df, Creating_dataframe.single(item)], ignore_index=True)
-        #final_df.to_csv(r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\\'+'mixed_list.csv')
+        final_df.to_csv(r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\\'+'mixed_list.csv')
 
 
+Updating.single('mikeshehad')
