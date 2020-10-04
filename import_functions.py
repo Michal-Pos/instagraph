@@ -22,10 +22,12 @@ L = instaloader.Instaloader()
 # Class that exports data from profiles
 class Exporting_data:
 
-    # This can be used only to exporting data from poblic profiles
+    # This can be used only to exporting data from public profiles
     def single_data(username):
+
         follower_list = []
         followee_list = []
+
         if os.path.exists(edges_path + username + '_edges.csv'):
             print('File ' + username + (20 - len(username)) * '.' + 'ALREADY EXISTS')
         else:
@@ -120,7 +122,6 @@ class Updating:
                     source_list.clear()
                     for followee in profile.get_followees():
                         source_list.append(followee.username)
-                    print('followees difreence')
 
                 if len(target_list) != followers_count:
                     target_list.clear()
@@ -138,7 +139,7 @@ class Updating:
 
                 os.remove(edges_path + username + '_edges.csv')
                 df.to_csv(edges_path + username + '_edges.csv', index=None)
-                print(username + 'has been updated')
+                print(username + ' has been updated')
             else:
                 print(username + (35 - len(username)) * '.' + 'IS UP TO DATE')
         else:
@@ -178,4 +179,4 @@ class Creating_dataframe:
         final_df.to_csv(r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\\'+'mixed_list.csv')
 
 
-Updating.single('mikeshehad')
+Updating.single('nawrocenie')
