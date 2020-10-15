@@ -2,15 +2,18 @@ import pandas as pd
 import os
 import instaloader
 import instaloader.exceptions
+import shutil
 
 edges_path = r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\edges\\'
 whl_path = r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\whl_folder\\'
+private_accounts=r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\private_accounts.csv'
+private_df = pd.read_csv(private_accounts)
+private_df=pd.DataFrame(private_df)
 
 # login and passwords section
 
 login = 'pm49055047'
 password = 'Zazuziza13'
-
 
 # login = 'hlane976'
 # password = 'Zazuziza15'
@@ -20,7 +23,7 @@ L = instaloader.Instaloader()
 
 
 # Class that exports data from profiles
-class Exporting_data:
+class Importing_data:
 
     # This can be used only to exporting data from public profiles
     def single_data(username):
@@ -29,7 +32,7 @@ class Exporting_data:
         followee_list = []
 
         if os.path.exists(edges_path + username + '_edges.csv'):
-            print('File ' + username + (20 - len(username)) * '.' + 'ALREADY EXISTS')
+            print('File ' + username + (30 - len(username)) * '.' + 'ALREADY EXISTS')
         else:
             try:
                 L.login(login, password)
@@ -42,6 +45,8 @@ class Exporting_data:
 
                 elif profile.is_private and login != 'mikeshehad':
                     print(username + (25 - len(username)) * '.' + 'PRIVATE')
+                    private_df.append({username}, ignore_index=True)
+
 
                 elif profile.followers > 1000 or profile.followees > 1000:
                     print(username + ' is not worth of exporting data from it')
@@ -71,10 +76,13 @@ class Exporting_data:
                 if e == instaloader.exceptions.TwoFactorAuthRequiredException:
                     print('TWO FACTOR AUTHENTHICATION REQUIERED')
 
+
+
+
     def list_data(list):
-        list=[i for i in list if not os.path.exists(edges_path + i + '_edges.csv')]
+        list = [i for i in list if not os.path.exists(edges_path + i + '_edges.csv')]
         for item in list:
-            Exporting_data.single_data(item)
+            Importing_data.single_data(item)
 
     def user(username):
         if os.path.exists(edges_path + username + '_edges.csv'):
@@ -89,10 +97,10 @@ class Exporting_data:
             main_list = source_list + target_list
             print(len(main_list))
             print(main_list)
-            Exporting_data.list_data(main_list[150:300])
+            Importing_data.list_data(main_list[0:150])
         else:
-            Exporting_data.single_data(username)
-            Exporting_data.user(username)
+            Importing_data.single_data(username)
+            Importing_data.user(username)
 
 
 class Updating:
@@ -130,12 +138,10 @@ class Updating:
                     print('followers difreence')
                 print(target_list)
 
-
-
                 data_final = {'Source': [username] * len(target_list) + source_list,
                               'Target': target_list + [username] * len(source_list)}
 
-                df=pd.DataFrame(data_final)
+                df = pd.DataFrame(data_final)
 
                 os.remove(edges_path + username + '_edges.csv')
                 df.to_csv(edges_path + username + '_edges.csv', index=None)
@@ -162,21 +168,61 @@ class Updating:
             main_list = source_list + target_list
 
 
-class Creating_dataframe:
+def creating_folder(username):
+    df = pd.read_csv(edges_path + username + '_edges.csv')
+    source_list = df['Source'].to_list()
+    target_list = df['Target'].to_list()
+    source_list = [i for i in source_list if i != username]
+    target_list = [i for i in target_list if i != username]
+    main_list = source_list + target_list
+    checker_list = []
 
+    for item in main_list:
+        if not os.path.exists(edges_path + item + '_edges.csv'):
+            checker_list.append(item)
+    print(checker_list)
+    print(len(checker_list))
+
+    if os.path.exists(whl_path + username + '_fold'):
+        print(len(main_list))
+        main_list = list(dict.fromkeys(main_list))
+        print(len(main_list))
+        for item in main_list:
+            if not os.path.exists(whl_path + username + '_fold//' + item + '_edges.csv'):
+                try:
+                    shutil.copy(edges_path + item + '_edges.csv',
+                                whl_path + username + '_fold//' + item + '_edges.csv')
+                    print('Folder ' + username + ' has been updated with this files: ', item)
+                except FileNotFoundError:
+                    pass
+
+    else:
+        os.makedirs(whl_path + username + '_fold')
+        for item in main_list:
+            if os.path.exists(edges_path + item + '_edges.csv'):
+                shutil.copy(edges_path + item + '_edges.csv', whl_path + username + '_fold//' + item + '_edges.csv')
+                print('Folder has been created out of', item)
+
+        shutil.copy(edges_path + username + '_edges.csv',
+                    whl_path + username + '_fold//' + username + '_edges.csv')
+
+
+class Creating_dataframe:
     def single(username):
         if os.path.exists(edges_path + username + '_edges.csv'):
             function_df = pd.read_csv(edges_path + username + '_edges.csv')
             return function_df
         else:
-            print('Dataframe '+username+ ' can not be created, file does not exists in database')
+            print('Dataframe ' + username + ' can not be created, file does not exists in database')
 
     def list(list):
         final_df = {"Source": [], "Target": []}
         final_df = pd.DataFrame(final_df)
         for item in list:
-            final_df=pd.concat([final_df, Creating_dataframe.single(item)], ignore_index=True)
-        final_df.to_csv(r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\\'+'mixed_list.csv')
+            final_df = pd.concat([final_df, Creating_dataframe.single(item)], ignore_index=True)
+        final_df.to_csv(r'C:\Users\micha\PycharmProjects\instagraph 3.0\data\\' + 'mixed_list.csv')
 
 
-Updating.single('nawrocenie')
+
+
+Importing_data.user('spotted.staszic')
