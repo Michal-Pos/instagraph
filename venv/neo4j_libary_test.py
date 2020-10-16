@@ -14,7 +14,7 @@ L = instaloader.Instaloader()
 
 
 """login potrzebny tulko podczas eksportowania relacji"""
-L.login('pm49055047', 'Zazuziza13')
+# L.login('pm49055047', 'Zazuziza13')
 
 
 def match_limit(int):
@@ -41,12 +41,15 @@ def nodes_name():
         nodes_names.append(record)
     return nodes_names
 
+
+
 def username_data(username):
     try:
         profile = instaloader.Profile.from_username(L.context, username)
 
         full_name = profile.full_name
         id = int(profile.userid)
+
         if profile.is_private:
             accessibility = 'PRIVATE'
         else:
@@ -69,6 +72,7 @@ def username_data(username):
             print(e)
 
 
+
 # creating node with labels as labels and name as property
 def create_node(list):
     for item in list:
@@ -81,9 +85,6 @@ def create_node(list):
         accessibility=tuple[3]
         print(tuple)
 
-
-
-
         session.run("MERGE (N: Person{{name:'{}', full_name:'{}',"
                     "id:{}, accesibilty:'{}' }})".format(username, full_name, id, accessibility))
 
@@ -93,15 +94,6 @@ def create_node(list):
 
         """"Czy jest mi potrzebne to poniżej?"""
         #session.run("MATCH (x:Person)return (x)")
-
-
-
-        #
-        # session.run("CREATE (N: Person{{username:'{}',full_name:'{}',"
-        #             "id:'{}',accesibilty:'{}})".format(username_data(username)))
-        #
-        # session.run("MATCH (x:{})return (x)".format(label))
-
 
 def all_nodes():
     session.run("MATCH (x) RETURN x")
@@ -154,39 +146,19 @@ def creating_relations_neo(source_list, target_list):
 
 
 
-#
-# creating_list_nodes(user_relations('mikeshehad'))
-# creating_reltionships(user_relations('mikeshehad'))
-# list1=tuple[0]+tuple[1]
-# print(list1)
-# list1=list(dict.fromkeys(list1))
-# for item in list1:
-#     username_data(item)
-# create_node(['karinagomolka', 'romantywka'])
-#creating_list_nodes('frankolej')
-# MICHAŁ, JEŚLI PADNIESZ TO PAMIETAJ
-# TO PONIŻEJ JEST W OPÓR WAŻNE
-
-
-# #create_node('Person', 'franek' )
-# tuple1=username_data('mikeshehad')
-# tuple2=username_data('brodaty_filip')
-# print(tuple1, tuple2)
-
-
 # session.run("MATCH (N: Person{{name:'{}', full_name:'{}', id:{}, accesibilty:'{}' }})".format(target, full_name, id, accessibility))
 
 
-def creating_reltionships(source, target):
-    tuple_s = username_data(source)
-    full_name_s = tuple_s[1]
-    id_s = tuple_s[2]
-    accessibility_s = tuple_s[3]
+def creating_relationship(source_tuple, target_tuple):
+    source=source_tuple[0]
+    full_name_s = source_tuple[1]
+    id_s = source_tuple[2]
+    accessibility_s = source_tuple[3]
 
-    tuple_t = username_data(target)
-    full_name_t = tuple_t[1]
-    id_t = tuple_t[2]
-    accessibility_t = tuple_t[3]
+    target=target_tuple[0]
+    full_name_t = target_tuple[1]
+    id_t = target_tuple[2]
+    accessibility_t = target_tuple[3]
 
     session.run('''
     MERGE (A:Person{{name:'{}', full_name:'{}', id:{}, accesibilty:'{}'}})
@@ -194,10 +166,25 @@ def creating_reltionships(source, target):
     MERGE (A) -[r:FOLLOWS]->(B)
                 '''.format(source, full_name_s, id_s, accessibility_s, target, full_name_t, id_t, accessibility_t))
 
-print(user_relations('mikeshehad'))
 
-for item in user_relations("mikeshehad"):
-    print(itema)
-    source=item[0]
-    target=item[1]
-    creating_reltionships(source, target)
+# creating realationships from list of tuples in format (source, target)
+def creating_realtionships(tuple_list):
+    lista=[item for t in tuple_list for item in t]
+    lista=list(dict.fromkeys(lista))
+    out_list=[]
+    for item in lista:
+        out_list.append(username_data(item))
+
+    for item in tuple_list:
+        print(item)
+
+
+        source_index=[x[0] for x in out_list].index(item[0])
+        target_index=[x[0] for x in out_list].index(item[1])
+
+        source_tuple=out_list[source_index]
+        target_tuple = out_list[target_index]
+
+        creating_relationship(source_tuple, target_tuple)
+
+creating_realtionships([('mikeshehad','frankolej'),('frankolej','karta_dama'),('bogi_02_', 'mikeshehad'),('bogi_02_','nawrocenie'),('nawrocenie','mikeshehad')])
