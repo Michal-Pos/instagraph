@@ -1,20 +1,24 @@
 from neo4j import GraphDatabase, basic_auth
 from py2neo import Node, Relationship, NodeMatcher, Graph, Schema
+from py2neo.matching import *
 import instaloader
+from itertools import chain
 import instaloader.exceptions
+from igql import InstagramGraphQL
 
 # establish connection
 graphdb=GraphDatabase.driver(uri = "bolt://localhost:7687", auth=("neo4j", 'zazuziza12'))
-# graph = Graph(password="zazuziza12")
-
+graph = Graph(password="zazuziza12")
+nodes = NodeMatcher(graph)
 session = graphdb.session()
-#session.run("CREATE CONSTRAINT ON (n:Person) ASSERT n.id IS UNIQUE")
 
 L = instaloader.Instaloader()
+igql_api = InstagramGraphQL()
 
-
-"""login potrzebny tulko podczas eksportowania relacji"""
-# L.login('pm49055047', 'Zazuziza13')
+#
+# """login potrzebny tulko podczas eksportowania relacji"""
+def login():
+    L.login('pm49055047', 'Zazuziza13')
 
 
 def match_limit(int):
@@ -30,47 +34,40 @@ def search_node(propety):
 
 def records_all_nodes():
     nodes = session.run("MATCH (x) RETURN (x)")
+    lista=[]
     for node in nodes:
-        print(node)
+        print(type(node))
+        lista.append(node)
+    print(lista)
 # create_node('ned')4
 
 def nodes_name():
     nodes_names=[]
     result = list(session.run("MATCH (n) RETURN n.name"))
-    for record in result:
-        nodes_names.append(record)
-    return nodes_names
+    data=result.data()
+    # for record in result:
+    #     nodes_names.append(record)
+    # return nodes_names
 
 
 
 def username_data(username):
-    try:
-        profile = instaloader.Profile.from_username(L.context, username)
+    user = igql_api.get_user(username)
+    data = user.data
+    full_name = data['data']['user']['full_name']
+    id = data['data']['user']['id']
 
-        full_name = profile.full_name
-        id = int(profile.userid)
+    if data['data']['user']['is_private'] == False:
+        accessibility = 'PUBLIC'
+    else:
+        accessibility = 'PRIVATE'
 
-        if profile.is_private:
-            accessibility = 'PRIVATE'
-        else:
-            accessibility = 'PUBLIC'
+    tuple = (username, full_name, id, accessibility)
 
+    return tuple
 
-        return username, full_name, id, accessibility
-
-    except Exception as e:
-        if e == instaloader.exceptions.ProfileNotExistsException:
-            print(username, ' profile does not exist')
-        if e == instaloader.exceptions.ConnectionException:
-            print('CONNECTION HAS BEEN LOST')
-
-        if e == instaloader.exceptions.TwoFactorAuthRequiredException:
-            print('TWO FACTOR AUTHENTHICATION REQUIERED')
-        if e == instaloader.exceptions.QueryReturnedNotFoundException:
-            print(profile, 'not found')
-        else:
-            print(e)
-
+# MATCH (x) where x.lable='{}' return (x)
+# MATCH (n) RETURN n
 
 
 # creating node with labels as labels and name as property
@@ -81,6 +78,7 @@ def create_node(list):
         tuple=username_data(username)
 
         full_name=tuple[1]
+        x = full_name.repla
         id=tuple[2]
         accessibility=tuple[3]
         print(tuple)
@@ -119,10 +117,9 @@ def user_relations(username):
                 target_list.append(follower.username)
             source_list=[username] * len(target_list) + source_list
             target_list=target_list + [username] * len(source_list)
-            print(source_list)
-            print(target_list)
 
             tuple=list(zip(source_list, target_list))
+            #print(tuple)
 
             return tuple
 
@@ -146,17 +143,18 @@ def creating_relations_neo(source_list, target_list):
 
 
 
-# session.run("MATCH (N: Person{{name:'{}', full_name:'{}', id:{}, accesibilty:'{}' }})".format(target, full_name, id, accessibility))
-
-
 def creating_relationship(source_tuple, target_tuple):
+    #print('SOURCE TUPLE', source_tuple)
+    #print('TARGET TUPLE',target_tuple)
     source=source_tuple[0]
     full_name_s = source_tuple[1]
+    full_name_s=full_name_s.translate({ord(i): None for i in ",'"})
     id_s = source_tuple[2]
     accessibility_s = source_tuple[3]
 
     target=target_tuple[0]
     full_name_t = target_tuple[1]
+    full_name_t = full_name_t.translate({ord(i): None for i in ",'"})
     id_t = target_tuple[2]
     accessibility_t = target_tuple[3]
 
@@ -169,22 +167,75 @@ def creating_relationship(source_tuple, target_tuple):
 
 # creating realationships from list of tuples in format (source, target)
 def creating_realtionships(tuple_list):
+
+    # creating list from tuple_list and removing duplicates
     lista=[item for t in tuple_list for item in t]
-    lista=list(dict.fromkeys(lista))
+    lista=list(set(lista))
     out_list=[]
+    index_list=[]
+    print(lista)
+
+    # for item in lista:
+    #     node_info = node_existence(item)
+    #     if node_info!=False:
+    #         lista.remove(item)
+    #         out_list.append(node_info)
+    # print(lista)
+    # print(out_list)
+    #
     for item in lista:
+        node_info = node_existence(item)
+        # print(info)
+        if node_info != False:
+            out_list.append(node_info)
+            index_list.append(node_info[0])
+    lista=list(set(lista)-set(index_list))
+    #print('LISTA', lista)
+    #print('OUT_LIST', out_list)
+
+    # Nicważnego, możesz to skasować bezproblemu
+    x=1
+
+    # creating list of deatailed info about every single node that supposed to be created
+    for item in lista:
+        print(x, item)
         out_list.append(username_data(item))
+        x+=1
+    print(out_list)
 
-    for item in tuple_list:
-        print(item)
+    for x,y in tuple_list:
+        print(x,y)
+        source_tuple=[tuple for tuple in out_list if x==tuple[0]]
+        source_tuple = tuple([element for tupl in source_tuple for element in tupl])
 
-
-        source_index=[x[0] for x in out_list].index(item[0])
-        target_index=[x[0] for x in out_list].index(item[1])
-
-        source_tuple=out_list[source_index]
-        target_tuple = out_list[target_index]
-
+        target_tuple=[tuple for tuple in out_list if y==tuple[0]]
+        target_tuple = tuple([element for tupl in target_tuple for element in tupl])
         creating_relationship(source_tuple, target_tuple)
 
-creating_realtionships([('mikeshehad','frankolej'),('frankolej','karta_dama'),('bogi_02_', 'mikeshehad'),('bogi_02_','nawrocenie'),('nawrocenie','mikeshehad')])
+
+# # lista=[('mikeshehad','frankolej'),('mikeshehad','karta_dama'),('mikeshehad','gosia_nw'),('frankolej','_basi_p_')]
+
+def node_existence(username):
+    node_information = nodes.match("Person", name=username).first()
+    # print(node_information)
+    # name = node_information['name']
+    # full_name = node_information['full_name']
+    #
+    # id = node_information['id']
+    # accesibilty = node_information['accesibilty']
+    # return (name, full_name, id, accesibilty)
+    if node_information==None:
+        return False
+    else:
+        name = node_information['name']
+        full_name = node_information['full_name']
+
+        id = node_information['id']
+        accesibilty = node_information['accesibilty']
+        return (name, full_name, id, accesibilty)
+
+
+login()
+creating_realtionships(user_relations('janstupkiewicz'))
+# creating_realtionships([('mikeshehad', 'frankolej')])
+# print(node_existence('frankolej'))
