@@ -105,6 +105,7 @@ def user_relations(username):
 
         if profile.is_private or profile.is_verified:
             print('Not Accesible')
+            return False
         elif profile.is_business_account and profile.followers>1000:
             print('business account')
 
@@ -167,63 +168,58 @@ def creating_relationship(source_tuple, target_tuple):
 
 # creating realationships from list of tuples in format (source, target)
 def creating_realtionships(tuple_list):
+    if tuple_list==False:
+        print('Wrong Input')
+    else:
+        # creating list from tuple_list and removing duplicates
+        lista = [item for t in tuple_list for item in t]
+        lista = list(set(lista))
+        out_list = []
+        index_list = []
+        print(lista)
 
-    # creating list from tuple_list and removing duplicates
-    lista=[item for t in tuple_list for item in t]
-    lista=list(set(lista))
-    out_list=[]
-    index_list=[]
-    print(lista)
+        # for item in lista:
+        #     node_info = node_existence(item)
+        #     if node_info!=False:
+        #         lista.remove(item)
+        #         out_list.append(node_info)
+        # print(lista)
+        # print(out_list)
+        #
+        for item in lista:
+            node_info = node_existence(item)
+            # print(info)
+            if node_info != False:
+                out_list.append(node_info)
+                index_list.append(node_info[0])
+        lista = list(set(lista) - set(index_list))
+        # print('LISTA', lista)
+        # print('OUT_LIST', out_list)
 
-    # for item in lista:
-    #     node_info = node_existence(item)
-    #     if node_info!=False:
-    #         lista.remove(item)
-    #         out_list.append(node_info)
-    # print(lista)
-    # print(out_list)
-    #
-    for item in lista:
-        node_info = node_existence(item)
-        # print(info)
-        if node_info != False:
-            out_list.append(node_info)
-            index_list.append(node_info[0])
-    lista=list(set(lista)-set(index_list))
-    #print('LISTA', lista)
-    #print('OUT_LIST', out_list)
+        # Nicważnego, możesz to skasować bezproblemu
+        x = 1
 
-    # Nicważnego, możesz to skasować bezproblemu
-    x=1
+        # creating list of deatailed info about every single node that supposed to be created
+        for item in lista:
+            print(x, item)
+            out_list.append(username_data(item))
+            x += 1
+        print(out_list)
 
-    # creating list of deatailed info about every single node that supposed to be created
-    for item in lista:
-        print(x, item)
-        out_list.append(username_data(item))
-        x+=1
-    print(out_list)
+        for x, y in tuple_list:
+            print(x, y)
+            source_tuple = [tuple for tuple in out_list if x == tuple[0]]
+            source_tuple = tuple([element for tupl in source_tuple for element in tupl])
 
-    for x,y in tuple_list:
-        print(x,y)
-        source_tuple=[tuple for tuple in out_list if x==tuple[0]]
-        source_tuple = tuple([element for tupl in source_tuple for element in tupl])
-
-        target_tuple=[tuple for tuple in out_list if y==tuple[0]]
-        target_tuple = tuple([element for tupl in target_tuple for element in tupl])
-        creating_relationship(source_tuple, target_tuple)
+            target_tuple = [tuple for tuple in out_list if y == tuple[0]]
+            target_tuple = tuple([element for tupl in target_tuple for element in tupl])
+            creating_relationship(source_tuple, target_tuple)
 
 
 # # lista=[('mikeshehad','frankolej'),('mikeshehad','karta_dama'),('mikeshehad','gosia_nw'),('frankolej','_basi_p_')]
 
 def node_existence(username):
     node_information = nodes.match("Person", name=username).first()
-    # print(node_information)
-    # name = node_information['name']
-    # full_name = node_information['full_name']
-    #
-    # id = node_information['id']
-    # accesibilty = node_information['accesibilty']
-    # return (name, full_name, id, accesibilty)
     if node_information==None:
         return False
     else:
@@ -236,6 +232,6 @@ def node_existence(username):
 
 
 login()
-creating_realtionships(user_relations('janstupkiewicz'))
+creating_realtionships(user_relations('ala_misterka'))
 # creating_realtionships([('mikeshehad', 'frankolej')])
 # print(node_existence('frankolej'))
