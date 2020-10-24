@@ -1,11 +1,14 @@
 from neo4j import GraphDatabase, basic_auth
-from py2neo import Node, Relationship, NodeMatcher, Graph, Schema
+from py2neo import Node, Relationship, NodeMatcher, Graph, Schema, Subgraph, Record
 from py2neo.matching import *
 import instaloader
 from itertools import chain
 import instaloader.exceptions
+import igql.exceptions
 from igql import InstagramGraphQL
 import sys
+from pandas import DataFrame
+from flask import json
 
 # establish connection
 graphdb = GraphDatabase.driver(uri="bolt://localhost:7687", auth=("neo4j", 'zazuziza12'))
@@ -15,19 +18,22 @@ session = graphdb.session()
 L = instaloader.Instaloader()
 igql_api = InstagramGraphQL()
 
-print('login')
-# login potrzebny tulko podczas eksportowania relacji
+# logowanie do danego konta instagrama
 def login():
     try:
         # L.login('kuziminskifranek','zazuziza12')
         # L.login('mikeshehad', 'fibbogauss')
         L.login('pm49055047', 'zazuziza13')
+        print('login succesful')
     except:
+        # zalogowanie się jest niezbędne do importowania danych z profili,
+        # bez poprawnego zalogowania nastąpi zatrzymanie kodu
         print(Exception)
         print('login failed')
         sys.exit()
 
-
+# sprawdzanie czy dany node istnieje w bazie Neo4j,
+# zwraca opowiednio True jeśli istnieje, False jeśli nie.
 def node_existence(username):
     node_information = nodes.match("Person", name=username).first()
     if node_information is None:
@@ -39,77 +45,91 @@ def node_existence(username):
         return (name, main)
 
 
-def user_relations(username, followers_count=1000, followees_count=1000):
+# Sprawdza czy można pobrać listę obserwujących i obserwowanych z profilu. Zwraca odpowiednio True i False
+# Maksymalna ilość obserwujących i obserwowanych jest ustawiona domyślnie
+# jako 1000 mając na uwadzę prędkość odpowiedzi z Instagrama
+# oraz wiarygodność tak dużych profili w kontekście analizy społeczności.
+def user_accessibility(username, followers_count=1000, followees_count=1000):
     try:
         user = igql_api.get_user(username)
-        data = user.data
-        print(data)
-        is_private = data['data']['user']['is_private']
-        if not is_private:
 
+        data = user.data
+        # print(data)
+        is_private = data['data']['user']['is_private']
+        if is_private:
+            print(username, 'is private')
+            return False
+        else:
             profile = instaloader.Profile.from_username(L.context, username)
             if profile.followers < followers_count and profile.followees < followees_count:
-                source_list = []
-                target_list = []
-
-                for followee in profile.get_followees():
-                    source_list.append(followee.username)
-                for follower in profile.get_followers():
-                    target_list.append(follower.username)
-
-                source_list = [username] * len(target_list) + source_list
-                target_list = target_list + [username] * len(source_list)
-
-                tuple = list(zip(source_list, target_list))
-                output_list = []
-                for x, y in tuple:
-                    #print(x, y)
-                    if x == username:
-                        x_tuple = (x, True)
-
-                    elif node_existence(x):
-                        x_tuple = node_existence(x)
-
-                    else:
-                        x_tuple = (x, False)
-
-                    if y == username:
-                        y_tuple = (y, True)
-
-                    elif node_existence(y):
-                        y_tuple = node_existence(y)
-
-                    else:
-                        y_tuple = (y, False)
-
-                    # print(x_tuple, y_tuple)
-                    output_list.append((x_tuple, y_tuple))
-                return output_list
-
-
+                print('is public')
+                return True
             else:
-                return 'HAS too many followers or followees'
-        else:
-            return  'is private'
+                print(username, 'has too many followers or followees')
+                return False
+    except:
+        print('problem occured', username)
+        return False
+
+# Po nazwie użytkownika zwraca listę tupli: ((source,bool), (target, bool)).
+def user_relations(username):
+    # Sprawdzenie czy konto użytkownika:
+    # *nie jest prywatne
+    # *nie ma za dużo obserwujących lub obserwowanych innych kont
+    # *istnieje
+    # Jeśli wszystkie te warunki zostaną spełnione, rozpocznie się import listy obserwujących i obserwowanych
+
+    if user_accessibility(username):
+        try:
+            profile = instaloader.Profile.from_username(L.context, username)
+            source_list = []
+            target_list = []
+
+            for followee in profile.get_followees():
+                source_list.append(followee.username)
+            for follower in profile.get_followers():
+                target_list.append(follower.username)
+
+            source_list = [username] * len(target_list) + source_list
+            target_list = target_list + [username] * len(source_list)
+
+            user = igql_api.get_user(username)
+
+            tuple = list(zip(source_list, target_list))
+            print(tuple)
+            output_list = []
+
+            # przypisywanie każdej nazwie użytkownika własności True jeśli sieć relacji
+            # jest budowana lub już została zbudowana wokół tego użytkownika i False jeśli nie jest.
+            for x, y in tuple:
+                # print(x, y)
+                if x == username:
+                    x_tuple = (x, True)
+                elif node_existence(x):
+                    x_tuple = node_existence(x)
+                else:
+                    x_tuple = (x, False)
 
 
-    except Exception as e:
-        if e == instaloader.exceptions.ProfileNotExistsException:
-            print(username, ' profile does not exist')
-            return 'not exist'
-        if e == instaloader.exceptions.ConnectionException:
-            print('CONNECTION HAS BEEN LOST')
-        if e == instaloader.exceptions.TwoFactorAuthRequiredException:
-            print('TWO FACTOR AUTHENTHICATION REQUIERED')
-        if e == instaloader.exceptions.QueryReturnedNotFoundException:
-            print('Query not found')
-        else:
-            print(e)
+                if y == username:
+                    y_tuple = (y, True)
+                elif node_existence(y):
+                    y_tuple = node_existence(y)
+                else:
+                    y_tuple = (y, False)
+                output_list.append((x_tuple, y_tuple))
 
 
+            return output_list
+        except:
+            print('unnown error')
+            return False
+    else:
+        print(username, 'profile is unaccesibble')
+        return False
 
-
-
+# Przyjmuje tuplę w formacie ((source,bool), (target, bool)) gdzie bool określa czy wokół
+# użytkownika jest budowana lub została już budowana sieć powiązań.
 def creating_relationship(tuple):
     # print(tuple)
     # print('SOURCE TUPLE', source_tuple)
@@ -126,6 +146,7 @@ def creating_relationship(tuple):
 
     # print("MAIN S", main_s)
     # print("MAIN T", main_t)
+
     if main_s:
         session.run(''' 
         MATCH (A:Person{{name:'{}'}})
@@ -138,8 +159,6 @@ def creating_relationship(tuple):
             SET B.main = True
             '''.format(target, main_t))
 
-
-
     session.run('''
             MERGE (A:Person{{name:'{}', main:{}}})
             MERGE (B:Person{{name:'{}', main:{}}})
@@ -147,92 +166,82 @@ def creating_relationship(tuple):
                         '''.format(source, main_s, target, main_t))
 
 
-# def setting_main(tuple):
-#     session.run('''
-#             MERGE (A:Person{{name:'{}', main:{}}})
-#             MERGE (B:Person{{name:'{}', main:{}}})
-#             MERGE (A) -[r:FOLLOWS]->(B)
-#                         '''.format('janstupkiewcz', ''))
-
-login()
 
 def first_degree_relations(username):
-    relations = user_relations(username)
-    if relations == 'is private':
-        print(username, relations)
-    if relations=='HAS too many followers or followees':
-        print(username, relations)
-    elif relations == 'not exist':
-        print(username, relations)
+    existance = node_existence(username)
+    print('node existance', existance)
+    if existance == False or existance[1]==False :
+        relations = user_relations(username)
+        if relations !=False:
+            for item in relations:
+                creating_relationship(item)
     else:
-        print(relations)
-        for item in relations:
-            creating_relationship(item)
+        print('already main node', username)
+        return False
 
 
 def second_degree_relations(username):
-    user_tuple = user_relations(username)
-    # print(user_tuple)
-
-    lista = [tuple[0][0] and tuple[1][0] for tuple in user_tuple]
-    lista = list(set(lista))
-    print(lista)
-    for item in lista:
-        try:
-            if not node_existence(item)[1]:
-                try:
+    if user_accessibility(username):
+        user_tuple = user_relations(username)
+        lista = [tuple[0][0] and tuple[1][0] for tuple in user_tuple]
+        lista = list(set(lista))
+        for item in lista:
+            print(item)
+            relations = user_relations(item)
+            if relations !=False:
+                for item in relations:
                     print(item)
-                    fd_relations = first_degree_relations(item)
-                except:
-
-                    if fd_relations == 'is private':
-                        print(item, fd_relations)
-                    elif fd_relations == 'HAS too many followers or followees':
-                        print(item, fd_relations)
-                    elif fd_relations == 'not exist':
-                        print(item, fd_relations)
-                    print('Problem occured with', item)
-                finally:
-                    print(item, ' data extraction has been ended')
-
-            else:
-                print(item, 'already exists')
-        except:
-            print('problem occured with', item, 'in database')
+                    creating_relationship(item)
 
 
-second_degree_relations('samorzadposting')
-# print(node_existence('mikeshehad'))
-# second_degree_relations('mikeshehad')
-
-# second_degree_relations('mikeshehad')
-    # out_list = list(set(out_list))
-    # print(out_list)
-    # for item in out_list:
-    #     relations_list = user_relations(item)
-    #     for item in relations_list:
-    #         creating_relationship(item)
+    else:
+        print(username, 'profile is private')
 
 
-# print(lista)
-# print(type(lista))
-# print(lista)
-# out_list=[]
-# for tuple in lista:
-#     for tuple in tuple:
-#         for item in tuple:
-#             if item != (True or False):
-#                 print(item)
-#                 out_list.append(item)
-#
-#second_degree_relations('mikeshehad')
-# out_list= list(set(lista))
-#
-# print(list)
-# MERGE (A:Person{name:'mikeshehad', main: True})
-# MERGE (B:Person{name:'janstupkiewicz', main:False})
-# MERGE (A) -[r:FOLLOWS]->(B)
-#
-# MERGE (A:Person{name:'mikeshehad'})
-# MERGE (A:Person{name:'mikeshehad'})
-# ON MATCH SET A.main = True
+result = session.run('''
+match (node {name: "samorzadposting"})-[r1]-()-[r2]-()
+with apoc.coll.toSet(collect(r1) + collect(r2))
+as rset return [r IN rset | {startname:startNode(r)["name"],endname:endNode(r)["name"]}]
+''')
+
+for record in result:
+    print(type)
+    print(record["name"])
+# for record in result.consume():
+#     print(record)
+
+# results = graph.cypher.execute('''
+# match (node {name: "samorzadposting"})-[r1]-()-[r2]-()
+# with apoc.coll.toSet(collect(r1) + collect(r2))
+# as rset return [r IN rset | {startname:startNode(r)["name"],endname:endNode(r)["name"]}]
+# ''')
+# print(results)
+# for dict in records:
+#     print(dict)
+# print(records)
+# returnobject=[]
+# for line in records:
+#     print(dict(line))
+#     print(type(line))
+# print(dict(dict(records)))
+# print(dict(records))
+# for record in records:
+#     for key in record:
+#         print(key)
+    # print(dict(dict(record)['startNode']))
+# print(type(results))
+# print(results[0])
+# for line in results:
+#     print(type(line))
+#     print(line)
+
+
+
+
+
+
+
+# login()
+# second_degree_relations('samorzadposting')
+
+
