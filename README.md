@@ -56,7 +56,7 @@ Importowanie relacji pierwszego i drugiego stopnia dla użytkownika`username`:
 
 # Analiza społeczności
 Jeżeli pobrałeś już wystaczającą ilość danych, możesz przeprowadzić detekcję społeczności.
-Aby przeprowadzić analizę na społeczności wokół danego konta, tworzymy graph:
+Aby przeprowadzić analizę na społeczności wokół danego konta, tworzymy graf:
 
     g = igraph_module.final_graph(username)
 
