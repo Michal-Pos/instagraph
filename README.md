@@ -52,7 +52,7 @@ Importowanie relacji pierwszego stopnia dla użytkownika`username`:
 
 Importowanie relacji pierwszego i drugiego stopnia dla użytkownika`username`:   
 
-    neo4j_module.first_degree_relations(username)
+    neo4j_module.second_degree_relations(username)
 
 # Analiza społeczności
 Jeżeli pobrałeś już wystaczającą ilość danych, możesz przeprowadzić detekcję społeczności.
