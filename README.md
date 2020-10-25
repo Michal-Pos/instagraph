@@ -73,7 +73,13 @@ Funkcja zwróci zagnieżdżoną listę, gdzie
  - `list[1]`jest listą tupli `(source, target)` opisujących przebieg relacji w grafie
 Dane te w przyszłej wersji programu będą połaczone z narzędziem wizualizującym.  
 
-# Włączenie serwera
+# Django
+
+Aby sciągnąć django należy najpierw posiadać pythona zainstalowanego na systemie.
+Następnie trzeba sciągnąć Django poprzez wpisanie komend: `pip install django` oraz `pip install django-admin`
+Po zainstalowaniu można włączyć serwer. Z faktu iż jest to wersja demo, baza danych nie jest potrzebna. 
+
+## Włączenie serwera
 
 `python manage.py runserver`
 Powinien wyświetlić się następujący komunikat:
