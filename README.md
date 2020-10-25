@@ -43,7 +43,7 @@ Importowanie relacji pierwszego stopnia dla użytkownika`username`:
     neo4j_module.first_degree_relations(username)
 
 # 
-Importowanie relacji drugiego stopnia dla użytkownika`username`:   
+Importowanie relacji pierwszego i drugiego stopnia dla użytkownika`username`:   
 
     neo4j_module.first_degree_relations(username)
 
