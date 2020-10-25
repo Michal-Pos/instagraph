@@ -1,11 +1,18 @@
 # Instagraph
 
-Witaj w Readme Instagraph, narzędzia pozwalającego na wizualizację grafów społecznych i wykrywanie społeczności i optymalizację działań mających na celu zatrzymanie rozpowrzechniania się koronawirusa w szkołach.
+Witaj w README Instagraph, narzędzia pozwalającego na wizualizację grafów społecznych i wykrywanie społeczności i optymalizację działań mających na celu zatrzymanie rozpowrzechniania się koronawirusa w szkołach. 
+Instagraph się na eksportowaniu danycn z serwisu społecznościowego Instagram, przechowywania ich w grafowej bazie danych Neo4j oraz ich wizualizacji. Wybraliśmy Instagram jako miejsce pobierania tych danych ponieważsą dostępne dla każdego zalogowanego użytkownika. Aby potwierdzić potencjalną skuteczność tego rozwiązania przeprowadziliśmy ankietę w której wzięło udział ponad 700 uczniów, która doprowadziła nas do następujących wyników:
+
+- Instagram jest popularnym serwisem społecznościowym( korzysta z niego ponad 90% ankietowanych)
+- Ponad połowa ankietowanych posiada publiczne konta
+- Ponad 95% ankietowanych stwierdziło że z Instagrama korzysta większość lub wszyscy ich znajomi
+- Ponad 90% szkół posiada strony na publiczne Instagramie które są potencjalnym źrodłem informacji na temat społeczności szkolnych 
+
 
  
 # Aby zacząć
 [Pobierz Neo4j Desktop](https://neo4j.com/download/) oraz utwórz w niej bazę danych. Zainstaluj w niej APOC, możesz to zrobić klikając ikonkę trzech kropek koło nazwy utowrzonej przez ciebie bazy. 
-Pobierz potrzbne biblioteki Pythona:
+Następnie pobierz potrzbne biblioteki Pythona:
  - instaloader
  - igraph
  - py2neo
@@ -43,7 +50,6 @@ Importowanie relacji pierwszego stopnia dla użytkownika`username`:
 
     neo4j_module.first_degree_relations(username)
 
-# 
 Importowanie relacji pierwszego i drugiego stopnia dla użytkownika`username`:   
 
     neo4j_module.first_degree_relations(username)
@@ -56,7 +62,7 @@ Aby przeprowadzić analizę na społeczności wokół danego konta, tworzymy gra
 
 Zależenie od pożądonego przez ciebie czasu oraz dokładności danych zawartch danych, rekomendujemy używanie filtrów:
 
- -Filtr wierzchołków o danym stopniu wchodzącymm`igraph_module.indegree_filter(g,start,stop)` 
+ - Filtr wierzchołków o danym stopniu wchodzącymm`igraph_module.indegree_filter(g,start,stop)` 
  - Filtr wierzchołków o danym stopniu wchodzącymm`igraph_module.outdegree_filter(g,start,stop)` 
 
 , gdzie `g` jest wejściowym grafem, `start ` jest dolną granicą zasięgu a `stop`górną. W przypadku zostawienia `stop`na wartość domyślną, przyjmie on największą możliwą wartość w grafie.
@@ -72,7 +78,8 @@ Funkcja zwróci zagnieżdżoną listę, gdzie
  - `list[0]`jest listą tupli `(username, cluster_index)` opisujących nazwy wierzchołków  w grafie oraz ich przynależność do społeczności
  - `list[1]`jest listą tupli `(source, target)` opisujących przebieg relacji w grafie
 Dane te w przyszłej wersji programu będą połaczone z narzędziem wizualizującym.  
-
+# Uwaga
+Obecny stan proejktu nie posiada bezpośredniej itegracji bazy danych i modułu wizualizującego graf.
 # Django
 
 Nasz projekt używa Django jako web framework z kilku powodów. Pierwszym z nich jest doskonała skalowalność, dzięki czemu rozrastanie się naszego projektu jest możliwe. Po drugie jest bardzo szybki w obsłudze klientów oraz jest open-source'owy, dzięki czemu nie wymaga licencji na użytkowanie. Django jest również bardzo bezpiecznym środowiskiem, czego dowodem są firmy takie jak Google lub Youtube które go używają do obsługi własnych serwisów.
@@ -92,6 +99,7 @@ Quit the server with CTRL-BREAK.`
 
 
 ## Wizualizacja
-Aby uzyskać wizualizację, należy wejsć na adres: `http://127.0.0.1:8000/`
+Aby uzyskać wizualizację, należy wejsć na adres: `http://127.0.0.1:8000/` 
+Poniższa wizualizacja prezentuje społeczności LXVII Liceum Ogólnokształcącego im. Jana Nowaka-Jeziorańskiego opracowana na podstawie danych pobranych i przetworzonych przez moduły Pythona wymienione wcześniej.
 
 ![](image.png)
