@@ -16,9 +16,12 @@ Zaimportuj moduły z tego repozytorium:
 
     import neo4j_module
     import igraph_module 
-Ustaw połącznie z utworzoną przez siebie bazą danych. Pamiętaj, musi być ona uruchomiona w Neo4j Desktop. Uri jest protokołem stosowanym przez Neo4j. Password jest ustawionym przez ciebie hasłem do bazy.
+Ustaw połącznie z utworzoną przez siebie bazą danych. Pamiętaj, musi być ona uruchomiona w Neo4j Desktop. ` neo4j_module.establish_database_connection(uri, auth)`.
+Gdzie ` uri` jest protokołem stosowanym przez Neo4j, a `auth` jest tuplą ` ('neo4j',password)`
+gdzie ` password` jest hasłem do utworzonej przez ciebie bazy w Neo4j.
+Przykładowe użycie:
 
-    neo4j_module.establish_database_connection(uri, password)
+    neo4j_module.establish_database_connection(uri="bolt://localhost:7687", auth=("neo4j", 'password1234')
 Jeżeli połącznie się nie powiedzie, pojawi się komunikat oraz wykona się `sys.exit()`
 
 
