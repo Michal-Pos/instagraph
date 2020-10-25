@@ -73,3 +73,17 @@ Funkcja zwróci zagnieżdżoną listę, gdzie
  - `list[1]`jest listą tupli `(source, target)` opisujących przebieg relacji w grafie
 Dane te w przyszłej wersji programu będą połaczone z narzędziem wizualizującym.  
 
+# Włączenie serwera
+
+`python manage.py runserver`
+Powinien wyświetlić się następujący komunikat:
+`System check identified no issues (0 silenced).
+Django version 3.1.2, using settings 'Instagraph.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.`
+
+
+## Wizualizacja
+Aby uzyskać wizualizację, należy wejsć na adres: `http://127.0.0.1:8000/`
+
+
