@@ -60,3 +60,12 @@ Przykładowe użycie:
 
      g = igraph_module.outdegree_filter(g,2)
 Użycie filtrów nie jest konieczne, ale może poprawić przejrzystość danych i prędkość ich odczytu z bazy danych.
+Bezpośrednia analiza społeczności jest wykonowyana za pomocą funkcji `igraph.final_social_data(g)`:
+
+    print(igraph.final_social_data(g))
+Funkcja zwróci zagnieżdżoną listę, gdzie 
+   
+ - `list[0]`jest listą tupli `(username, cluster_index)` opisujących nazwy wierzchołków  w grafie oraz ich przynależność do społeczności
+ - `list[1]`jest listą tupli `(source, target)` opisujących przebieg relacji w grafie
+Dane te w przyszłej wersji programu będą połaczone z narzędziem wizualizującym.  
+
