@@ -13,7 +13,7 @@ Pobierz potrzbne biblioteki Pythona:
  
  Powyższe biblioteki umożliwiają modułom pobieranie danych i zarządzanie nimi w utworzonej przez ciebie bazie danych Neo4j.
 
-Zaimportuj moduły z tego repozytorium:
+Zaimportuj moduły z repozytorium Inastagraph'u:
 
     import neo4j_module
     import igraph_module 
