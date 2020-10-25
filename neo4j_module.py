@@ -19,7 +19,7 @@ def establish_database_connection(uri="bolt://localhost:7687", auth=("neo4j", 'z
     except:
         print('Connection to database failed')
         sys.exit()
-C:\Users\micha\PycharmProjects\instagraph 3.6\venv\neo4j_module.py
+
 # Deklarowanie zmiennych potrzebnych do zarządzania bazą danych
 # oraz importowaniem do nich informacji
 establish_database_connection()
@@ -34,7 +34,6 @@ def login(login, password):
     try:
         global L
         L = instaloader.Instaloader()
-        # L.login('kuziminskifranek','zazuziza12')
         L.login(login, password)
     except:
 
@@ -112,7 +111,6 @@ def user_relations(username):
             # przypisywanie każdej nazwie użytkownika własności True jeśli sieć relacji
             # jest budowana lub już została zbudowana wokół tego użytkownika i False jeśli nie jest.
             for x, y in tuple:
-                # print(x, y)
                 if x == username:
                     x_tuple = (x, True)
                 elif node_existence(x):
@@ -211,8 +209,6 @@ def user_graph_data(username):
         relationships = [(name['startname'], name['endname']) for name in names[0]]
         return relationships
 
-
-# L.login('pm49055047', 'zazuziza13')
 
 # login('pm49055047', 'zazuziza13')
 # second_degree_relations('samorzadposting')
