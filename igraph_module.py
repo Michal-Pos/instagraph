@@ -36,7 +36,7 @@ def indegree_filter(g, start=0, stop=0):
 
 # Dla danego grafu, funkcja filtruje te wierzchołki których stopień wchodzący
 # jest zgodny z podanym zakresem(start, stop).
-# Jeśli stop jest zostawiony domyślnie to przyjmuje największy możliwy stopień wchodzący.
+# Jeśli stop jest zostawiony domyślnie to przyjmujewartość największego możliwego stopnia wychodzącego.
 def outdegree_filter(g, start=0, stop=0):
     g.as_directed()
     if stop == 0:
