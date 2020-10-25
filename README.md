@@ -86,4 +86,4 @@ Quit the server with CTRL-BREAK.`
 ## Wizualizacja
 Aby uzyskać wizualizację, należy wejsć na adres: `http://127.0.0.1:8000/`
 
-
+![](image.png)
