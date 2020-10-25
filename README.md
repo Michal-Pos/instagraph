@@ -10,6 +10,7 @@ Pobierz potrzbne biblioteki Pythona:
  - igraph
  - py2neo
  - neo4j
+ 
  Powyższe biblioteki umożliwiają modułom pobieranie danych i zarządzanie nimi w utworzonej przez ciebie bazie danych Neo4j.
 
 Zaimportuj moduły z tego repozytorium:
