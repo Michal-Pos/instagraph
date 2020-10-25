@@ -75,6 +75,8 @@ Dane te w przyszłej wersji programu będą połaczone z narzędziem wizualizuj�
 
 # Django
 
+Nasz projekt używa Django jako web framework z kilku powodów. Pierwszym z nich jest doskonała skalowalność, dzięki czemu rozrastanie się naszego projektu jest możliwe. Po drugie jest bardzo szybki w obsłudze klientów oraz jest open-source'owy, dzięki czemu nie wymaga licencji na użytkowanie. Django jest również bardzo bezpiecznym środowiskiem, czego dowodem są firmy takie jak Google lub Youtube które go używają do obsługi własnych serwisów.
+
 Aby sciągnąć django należy najpierw posiadać pythona zainstalowanego na systemie.
 Następnie trzeba sciągnąć Django poprzez wpisanie komend: `pip install django` oraz `pip install django-admin`
 Po zainstalowaniu można włączyć serwer. Z faktu, iż jest to wersja demo, baza danych nie jest potrzebna. 
