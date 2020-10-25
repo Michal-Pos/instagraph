@@ -65,7 +65,7 @@ Przykładowe użycie:
 Użycie filtrów nie jest konieczne, ale może poprawić przejrzystość danych i prędkość ich odczytu z bazy danych.
 Bezpośrednia analiza społeczności jest wykonowyana za pomocą funkcji `igraph.final_social_data(g)`:
 
-    print(igraph.final_social_data(g))
+    print(igraph_module.final_social_data(g))
 Funkcja zwróci zagnieżdżoną listę, gdzie 
    
  - `list[0]`jest listą tupli `(username, cluster_index)` opisujących nazwy wierzchołków  w grafie oraz ich przynależność do społeczności
