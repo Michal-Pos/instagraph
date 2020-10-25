@@ -63,7 +63,7 @@ Aby przeprowadzić analizę na społeczności wokół danego konta, tworzymy gra
 Zależenie od pożądonego przez ciebie czasu oraz dokładności danych zawartch danych, rekomendujemy używanie filtrów:
 
  - Filtr wierzchołków o danym stopniu wchodzącymm`igraph_module.indegree_filter(g,start,stop)` 
- - Filtr wierzchołków o danym stopniu wchodzącymm`igraph_module.outdegree_filter(g,start,stop)` 
+ - Filtr wierzchołków o danym stopniu wychodzącymm`igraph_module.outdegree_filter(g,start,stop)` 
 
 , gdzie `g` jest wejściowym grafem, `start ` jest dolną granicą zasięgu a `stop`górną. W przypadku zostawienia `stop`na wartość domyślną, przyjmie on największą możliwą wartość w grafie.
 Przykładowe użycie:
