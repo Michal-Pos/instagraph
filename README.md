@@ -77,7 +77,7 @@ Dane te w przyszłej wersji programu będą połaczone z narzędziem wizualizuj�
 
 Aby sciągnąć django należy najpierw posiadać pythona zainstalowanego na systemie.
 Następnie trzeba sciągnąć Django poprzez wpisanie komend: `pip install django` oraz `pip install django-admin`
-Po zainstalowaniu można włączyć serwer. Z faktu iż jest to wersja demo, baza danych nie jest potrzebna. 
+Po zainstalowaniu można włączyć serwer. Z faktu, iż jest to wersja demo, baza danych nie jest potrzebna. 
 
 ## Włączenie serwera
 
