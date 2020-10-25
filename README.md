@@ -25,7 +25,7 @@ Zaimportuj moduły z repozytorium Inastagraph'u:
     import neo4j_module
     import igraph_module 
 Ustaw połącznie z utworzoną przez siebie bazą danych. Pamiętaj, musi być ona uruchomiona w Neo4j Desktop. ` neo4j_module.establish_database_connection(uri, auth)`.
-Gdzie ` uri` jest protokołem stosowanym przez Neo4j, a `auth` jest tuplą ` ('neo4j',password)`
+Gdzie ` uri` jest protokołem stosowanym przez Neo4j który pojawia się zaraz po utworzeniu bazy, a `auth` jest tuplą ` ('neo4j',password)`
 gdzie ` password` jest hasłem do utworzonej przez ciebie bazy w Neo4j.
 Przykładowe użycie:
 
